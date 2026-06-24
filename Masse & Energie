@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Métasciences Quiz - Noyaux, Masse & Énergie</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #dbeafe;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0f2fe 0%, #chf3ff 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background: var(--white);
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 750px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            border: 4px solid var(--primary-light);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--light);
+            padding-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .brand {
+            font-weight: 800;
+            color: var(--primary);
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timer-badge {
+            background: #fee2e2;
+            color: var(--danger);
+            border: 2px solid var(--danger);
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.03); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-audio {
+            background: var(--primary-light);
+            border: none;
+            color: var(--primary);
+            padding: 8px 12px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .btn-audio:hover {
+            filter: brightness(0.95);
+        }
+
+        .progress-section {
+            margin-bottom: 25px;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        .progress-bar-bg {
+            background: #e2e8f0;
+            height: 12px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background: linear-gradient(90deg, var(--primary) 0%, #60a5fa 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+            border-radius: 10px;
+        }
+
+        .card {
+            animation: fadeIn 0.4s ease;
+        }
+
+        .lesson-tag {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            border: 1px solid #e2e8f0;
+        }
+
+        .difficulty-tag {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--white);
+            margin-left: 8px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .diff-easy { background-color: var(--success); }
+        .diff-medium { background-color: var(--warning); }
+        .diff-hard { background-color: #a855f7; }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            color: var(--dark);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .option-btn {
+            background: var(--light);
+            border: 2px solid #e2e8f0;
+            padding: 16px 20px;
+            border-radius: 16px;
+            text-align: left;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .option-btn.correct {
+            background-color: #d1fae5 !important;
+            border-color: var(--success) !important;
+            color: #065f46 !important;
+        }
+
+        .option-btn.incorrect {
+            background-color: #fee2e2 !important;
+            border-color: var(--danger) !important;
+            color: #991b1b !important;
+        }
+
+        .feedback-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 700;
+            text-align: center;
+            display: none;
+            animation: bounceIn 0.4s;
+        }
+
+        .feedback-success { background: #ecfdf5; color: var(--success); }
+        .feedback-error { background: #fff5f5; color: var(--danger); }
+
+        .hint-box {
+            margin-top: 15px;
+            background: #fffbeb;
+            border-left: 4px solid var(--warning);
+            padding: 12px;
+            border-radius: 0 12px 12px 0;
+            font-size: 0.95rem;
+            color: #92400e;
+            display: none;
+        }
+
+        .btn-hint {
+            background: none;
+            border: none;
+            color: var(--warning);
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            text-decoration: underline;
+        }
+
+        .score-screen {
+            text-align: center;
+            display: none;
+            padding: 20px 0;
+        }
+
+        .score-badge {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+
+        .btn-restart {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 14px 30px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+            transition: all 0.2s;
+            margin-top: 20px;
+        }
+
+        .btn-restart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: blow 1s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes blow {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
+        }
+
+        @media(max-width: 600px) {
+            .quiz-container { padding: 20px; }
+            .question-text { font-size: 1.1rem; }
+            .option-btn { font-size: 0.95rem; padding: 12px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quizContainer">
+        <div class="header">
+            <div class="brand">⚛️ Métasciences Pro</div>
+            <div class="timer-badge" id="timerBadge">⏱️ 20:00</div>
+            <div class="controls">
+                <button class="btn-audio" id="bgMusicBtn" onclick="toggleMusic()">🎵 Musique : OFF</button>
+                <button class="btn-audio" id="soundEffectsBtn" onclick="toggleSounds()">🔊 Sons : ON</button>
+            </div>
+        </div>
+
+        <div class="progress-section" id="progressSection">
+            <div class="progress-text">
+                <span id="questionNumDisplay">Question 1 sur 30</span>
+                <span id="scoreDisplay">Score : 00/30</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressBarFill"></div>
+            </div>
+        </div>
+
+        <div id="quizCard" class="card">
+            <div class="lesson-tag" id="lessonTag">Chapitre 5: Noyaux, masse et énergie</div>
+            <span class="difficulty-tag diff-easy" id="diffTag">Facile</span>
+            <div class="question-text" id="questionText">Chargement de la question...</div>
+            <div class="options-grid" id="optionsGrid"></div>
+            
+            <button class="btn-hint" onclick="showHint()">💡 Besoin d'un indice ?</button>
+            <div class="hint-box" id="hintBox"></div>
+
+            <div class="feedback-message" id="feedbackMessage"></div>
+        </div>
+
+        <div class="score-screen" id="scoreScreen">
+            <h2 id="endTitle">🎉 Travail terminé ! 🎉</h2>
+            <p id="endSubtitle">Félicitations pour avoir parcouru l'ensemble des notions clés du manuel.</p>
+            <div class="score-badge" id="finalScoreBadge">0 / 30</div>
+            <p id="finalEvaluationText">Excellent effort !</p>
+            <button class="btn-restart" onclick="restartQuiz()">Recommencer le Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // --- BANQUE DE 30 QUESTIONS ---
+        const questionsDatabase = [
+            {
+                lesson: "A. L'équivalence masse-énergie",
+                difficulty: "Facile",
+                question: "Qui a formulé l'hypothèse de l'équivalence entre la masse et l'énergie en 1905 ?",
+                options: ["Albert Einstein", "Francis William Aston", "Max Welfar", "Antoine Becquerel"],
+                correct: 0,
+                hint: "C'est l'un des plus grands esprits scientifiques, également auteur de la relativité.",
+                rationale: "Albert Einstein a postulé en 1905 que toute perte de masse s'accompagne d'une libération d'énergie."
+            },
+            {
+                lesson: "B. Le projet ITER",
+                difficulty: "Facile",
+                question: "Quel est l'objectif principal du projet international ITER ?",
+                options: ["Démontrer la faisabilité de la production d'énergie par fusion des atomes", "Construire de nouvelles centrales à fission", "Étudier uniquement le rayonnement gamma du Soleil", "Exploiter les dernières énergies fossiles"],
+                correct: 0,
+                hint: "Il s'agit d'une source propre et abondante recherchée pour le XXIe siècle.",
+                rationale: "Le projet ITER cherche à maîtriser la fusion contrôlée des atomes d'isotopes de l'hydrogène."
+            },
+            {
+                lesson: "B. Le projet ITER",
+                difficulty: "Facile",
+                question: "Quel site en France a été retenu pour accueillir le projet ITER ?",
+                options: ["Cadarache, près d'Aix-en-Provence", "Paris", "Hiroshima", "Cannes"],
+                correct: 0,
+                hint: "Ce site accueille déjà le département de recherche sur la fusion contrôlée.",
+                rationale: "Le site de Cadarache a été sélectionné pour l'installation du réacteur expérimental."
+            },
+            {
+                lesson: "B. Le projet ITER",
+                difficulty: "Intermédiaire",
+                question: "Combien de litres d'eau de mer suffisent à fournir 1 g de deutérium (isotope nécessaire à la fusion) ?",
+                options: ["300 litres", "1 litre", "10 000 litres", "50 litres"],
+                correct: 0,
+                hint: "Cette quantité permettrait à l'eau des océans de subvenir aux besoins pour un milliard d'années.",
+                rationale: "Le texte précise explicitement que 300 litres d'eau de mer extraient 1 g de deutérium."
+            },
+            {
+                lesson: "1. Origine de l'énergie nucléaire",
+                difficulty: "Facile",
+                question: "Comment définit-on l'énergie libérée lors de la désintégration de noyaux radioactifs ?",
+                options: ["L'énergie nucléaire", "L'énergie fossile", "L'énergie calorifique du pétrole", "L'énergie chimique"],
+                correct: 0,
+                hint: "C'est l'énergie issue directement des transformations internes du noyau.",
+                rationale: "La désintégration des noyaux instables libère de l'énergie dite nucléaire."
+            },
+            {
+                lesson: "1.1 Désintégration radioactive",
+                difficulty: "Intermédiaire",
+                question: "Sous quelles formes l'énergie est-elle libérée lors de la désintégration spontanée du Radium 226 ?",
+                options: ["Énergie cinétique et énergie rayonnante", "Énergie chimique et mécanique", "Énergie électrique pure", "Uniquement de la chaleur fossile"],
+                correct: 0,
+                hint: "Les particules sont émises à grande vitesse et s'accompagnent d'un rayonnement de haute énergie.",
+                rationale: "La réaction produit de l'énergie cinétique (vitesse des particules) et rayonnante (ondes électromagnétiques)."
+            },
+            {
+                lesson: "1.1 Désintégration radioactive",
+                difficulty: "Intermédiaire",
+                question: "Qu'est-ce que le rayonnement gamma (γ) mentionné dans le bilan de désintégration ?",
+                options: ["Une onde électromagnétique de très courte longueur d'onde et d'énergie élevée", "Un flux d'électrons lents", "Une particule lourde de type hélium", "Une onde sonore inaudible"],
+                correct: 0,
+                hint: "C'est un rayonnement à haute fréquence associé aux produits de la décomposition nucléaire.",
+                rationale: "Le rayonnement gamma est une onde électromagnétique très énergétique de courte longueur d'onde."
+            },
+            {
+                lesson: "1.2 Le défaut de masse",
+                difficulty: "Analyse",
+                question: "Que constate-t-on lors de la comparaison des masses dans une réaction nucléaire spontanée ?",
+                options: ["La masse totale des noyaux après est inférieure à la masse avant", "La masse après est strictement supérieure", "La masse reste rigoureusement identique", "La masse double systématiquement"],
+                correct: 0,
+                hint: "Cette différence positive est appelée défaut ou perte de masse.",
+                rationale: "Dans toute réaction spontanée, la masse des produits finaux est inférieure à la masse initiale."
+            },
+            {
+                lesson: "1.2 Le défaut de masse",
+                difficulty: "Analyse",
+                question: "Quelle est l'expression mathématique correcte du défaut de masse Dm lors d'une réaction ?",
+                options: ["Dm = m_av - m_ap > 0", "Dm = m_ap - m_av > 0", "Dm = m_av + m_ap", "Dm = m_av * c^2"],
+                correct: 0,
+                hint: "Le défaut de masse représente la masse perdue sous forme d'énergie.",
+                rationale: "Le défaut de masse correspond à la masse initiale disponible moins la masse finale restante."
+            },
+            {
+                lesson: "1.3 La relation d'Einstein",
+                difficulty: "Facile",
+                question: "Quelle est la célèbre équation d'Einstein reliant l'énergie de masse à la masse d'une particule au repos ?",
+                options: ["E0 = m . c^2", "E0 = m / c^2", "E0 = Dm . c", "E0 = Z . m_p"],
+                correct: 0,
+                hint: "Le terme de droite fait intervenir le carré de la vitesse de la lumière.",
+                rationale: "La formule emblématique postulant l'équivalence masse-énergie est E = m.c^2."
+            },
+            {
+                lesson: "1.3 La relation d'Einstein",
+                difficulty: "Facile",
+                question: "Dans la relation E0 = m.c^2, que représente le paramètre 'c' ?",
+                options: ["La célérité de la lumière dans le vide", "La constante de combustion du pétrole", "La charge électrique du proton", "Le nombre de nucléons"],
+                correct: 0,
+                hint: "Sa valeur approchée employée dans le cours est de 2,9979 x 10^8 m/s.",
+                rationale: "La lettre c désigne la célérité (vitesse) de la lumière dans le vide."
+            },
+            {
+                lesson: "1.4 Unités de masse et énergie",
+                difficulty: "Facile",
+                question: "Quelle est l'unité de symbole 'u' utilisée en physique nucléaire pour exprimer les masses à l'échelle atomique ?",
+                options: ["L'unité de masse atomique", "L'unité universelle d'Einstein", "L'électronvolt", "Le gramme par mole"],
+                correct: 0,
+                hint: "Elle est introduite pour manipuler des valeurs adaptées aux nucléons isolés.",
+                rationale: "L'unité de masse atomique (u) évite l'utilisation d'exposants négatifs très grands en kilogrammes."
+            },
+            {
+                lesson: "1.4 Unités de masse et énergie",
+                difficulty: "Intermédiaire",
+                question: "Quelle est la valeur d'une unité de masse atomique (1 u) exprimée en kilogrammes ?",
+                options: ["1,66054 x 10^-27 kg", "9,109 x 10^-31 kg", "1,602 x 10^-19 kg", "6,022 x 10^23 kg"],
+                correct: 0,
+                hint: "C'est une constante extrêmement petite liée à l'inverse de la constante d'Avogadro.",
+                rationale: "Par définition mentionnée dans le document, 1 u vaut précisément 1,66054 x 10^-27 kg."
+            },
+            {
+                lesson: "1.4 Unités de masse et énergie",
+                difficulty: "Intermédiaire",
+                question: "Pourquoi utilise-t-on couramment le mégaélectronvolt (MeV) plutôt que l'électronvolt (eV) en physique nucléaire ?",
+                options: ["L'énergie nucléaire est environ un million de fois plus grande que l'énergie chimique", "Le MeV est l'unité légale du système international", "L'électronvolt ne s'applique qu'aux neutrons", "Le MeV mesure des distances"],
+                correct: 0,
+                hint: "Pensez au rapport d'échelle de puissance entre les liaisons chimiques et nucléaires.",
+                rationale: "L'énergie libérée par les réactions nucléaires dépasse d'un facteur d'un million celle des réactions chimiques."
+            },
+            {
+                lesson: "1.4 Unités de masse et énergie",
+                difficulty: "Analyse",
+                question: "À quelle équivalence en énergie correspond exactement une unité de masse atomique (1 u) d'après le cours ?",
+                options: ["931,5 MeV", "0,511 MeV", "938,272 MeV", "1,602 MeV"],
+                correct: 0,
+                hint: "Cette valeur s'obtient en multipliant 1 u par le carré de la vitesse de la lumière puis en convertissant en MeV.",
+                rationale: "D'après la relation d'Einstein, la conversion donne une correspondance directe de 1 u pour 931,5 MeV."
+            },
+            {
+                lesson: "1.4 Unités de masse et énergie",
+                difficulty: "Intermédiaire",
+                question: "D'après le tableau du document 3, quelle particule possède la masse la plus faible ?",
+                options: ["L'électron (0,00055 u)", "Le proton (1,00728 u)", "Le neutron (1,00866 u)", "Le noyau de Radium"],
+                correct: 0,
+                hint: "Sa masse en MeV est de seulement 0,511.",
+                rationale: "Le tableau indique 0,00055 u pour l'électron, ce qui est bien inférieur aux nucléons."
+            },
+            {
+                lesson: "2.1 Défaut de masse d'un noyau",
+                difficulty: "Analyse",
+                question: "Pour un noyau complet au repos, comment se compare sa masse totale à la somme des masses de ses nucléons séparés ?",
+                options: ["La masse du noyau est inférieure à la somme des nucléons séparés", "La masse du noyau est supérieure", "Les deux masses sont identiques au repos", "Le noyau pèse le double"],
+                correct: 0,
+                hint: "C'est l'origine de la stabilité et de l'énergie de liaison.",
+                rationale: "La masse d'un noyau constitué est toujours inférieure à la somme des masses de ses constituants isolés."
+            },
+            {
+                lesson: "2.1 Défaut de masse d'un noyau",
+                difficulty: "Analyse",
+                question: "Quelle est la formule générale du défaut de masse Dm d'un noyau constitué de Z protons et de (A-Z) neutrons ?",
+                options: ["Dm = (Z.m_p + (A-Z).m_n) - m(noyau)", "Dm = m(noyau) - (Z.m_p + A.m_n)", "Dm = Z.m_p / m_n", "Dm = m(noyau) . c^2"],
+                correct: 0,
+                hint: "On fait la différence entre les nucléons libres et le noyau lié.",
+                rationale: "Dm = (Z.m_p + (A-Z).m_n) - m(noyau), cette différence est strictement positive."
+            },
+            {
+                lesson: "2.2 L'énergie de liaison d'un noyau",
+                difficulty: "Intermédiaire",
+                question: "Comment définit-on l'énergie de liaison El d'un noyau ?",
+                options: ["L'énergie libérée lors de la formation du noyau à partir de ses nucléons séparés", "L'énergie cinétique moyenne des électrons", "L'énergie nécessaire pour brûler un gramme de pétrole", "L'énergie totale transmise par le Soleil"],
+                correct: 0,
+                hint: "C'est aussi l'énergie qu'il faudrait fournir pour dissocier entièrement le noyau.",
+                rationale: "L'énergie de liaison correspond à l'équivalent énergétique du défaut de masse du noyau."
+            },
+            {
+                lesson: "2.3 La courbe d'ASTON",
+                difficulty: "Facile",
+                question: "Que représente graphiquement la courbe d'Aston ?",
+                options: ["L'opposé de l'énergie de liaison par nucléon (-El/A) en fonction de A", "La vitesse des neutrons en fonction de la température", "La masse du Soleil au cours du temps", "L'énergie cinétique en fonction du numéro atomique Z"],
+                correct: 0,
+                hint: "Elle comporte un creux central caractérisant la zone de stabilité maximale.",
+                rationale: "La courbe d'Aston reporte le quotient (-El/A) pour visualiser l'état de stabilité des noyaux."
+            },
+            {
+                lesson: "2.3 La courbe d'ASTON",
+                difficulty: "Intermédiaire",
+                question: "Dans quelle région de la courbe d'Aston se situent les noyaux possédant la plus grande stabilité ?",
+                options: ["En bas, dans le creux de la courbe (partie rouge)", "Tout en haut à gauche pour l'hydrogène", "À l'extrémité droite pour les noyaux les plus lourds", "Sur les axes extérieurs"],
+                correct: 0,
+                hint: "C'est là où l'énergie de liaison par nucléon est la plus forte (environ 8,7 MeV).",
+                rationale: "Les noyaux très stables se positionnent dans le creux inférieur de la courbe d'Aston."
+            },
+            {
+                lesson: "2.3 La courbe d'ASTON",
+                difficulty: "Analyse",
+                question: "En comparant l'Uranium 235 (7,7 MeV/nucléon) et le Fer 56 (8,79 MeV/nucléon), quel noyau est le plus stable ?",
+                options: ["Le Fer 56", "L'Uranium 235", "Ils ont la même stabilité", "L'Uranium est instable donc n'a pas de masse"],
+                correct: 0,
+                hint: "Un noyau est d'autant plus stable que son énergie de liaison par nucléon est grande.",
+                rationale: "Le Fer 56 a une énergie de liaison par nucléon supérieure, il est donc plus stable."
+            },
+            {
+                lesson: "2.3 La courbe d'ASTON",
+                difficulty: "Intermédiaire",
+                question: "Quels sont les deux processus possibles permettant aux noyaux de faible énergie de liaison par nucléon de gagner en stabilité ?",
+                options: ["La fission d'un noyau lourd ou la fusion de deux noyaux légers", "La combustion chimique et l'évaporation", "La désintégration alpha uniquement", "La conductibilité électrique"],
+                correct: 0,
+                hint: "Ces réactions, contrairement aux désintégrations naturelles, sont provoquées.",
+                rationale: "La fission des noyaux lourds et la fusion des noyaux légers tendent vers le creux de stabilité."
+            },
+            {
+                lesson: "2.3 La courbe d'ASTON",
+                difficulty: "Facile",
+                question: "Qui a participé à la découverte de l'isotopie et reçu le prix Nobel de chimie en 1922 ?",
+                options: ["Francis William Aston", "Albert Einstein", "M. Jérôme", "Max Welfar"],
+                correct: 0,
+                hint: "Son nom a été donné à la courbe d'énergie nucléaire par nucléon.",
+                rationale: "Francis William Aston a recensé les isotopes stables et a été récompensé en 1922."
+            },
+            {
+                lesson: "3.1 Principe de la fission",
+                difficulty: "Facile",
+                question: "Qu'est-ce qu'une fission nucléaire ?",
+                options: ["Un noyau lourd qui éclate en deux noyaux plus légers sous l'impact d'un neutron", "La réunion de deux noyaux légers", "L'émission spontanée d'un rayonnement gamma sans changement de masse", "La perte totale des électrons d'un atome"],
+                correct: 0,
+                hint: "C'est une réaction provoquée par un projectile neutre.",
+                rationale: "La fission implique l'éclatement d'un noyau lourd initié par l'impact d'un neutron."
+            },
+            {
+                lesson: "3.1 Principe de la fission",
+                difficulty: "Intermédiaire",
+                question: "Quel isotope lourd est couramment cité pour illustrer la fission provoquée ?",
+                options: ["L'Uranium 235", "Le Fer 56", "Le Deutérium", "Le Lithium 6"],
+                correct: 0,
+                hint: "Son nombre de nucléons est de 235.",
+                rationale: "Le cours étudie la fission de l'uranium 235 sous l'impact d'un neutron."
+            },
+            {
+                lesson: "3.1 Principe de la fission",
+                difficulty: "Analyse",
+                question: "Comment appelle-t-on le phénomène où les neutrons produits par une fission vont à leur tour casser d'autres noyaux ?",
+                options: ["Une réaction en chaîne", "Une fusion en continu", "Une équivalence absolue", "Une combustion fossile"],
+                correct: 0,
+                hint: "Ce phénomène nécessite un contrôle rigoureux dans les réacteurs.",
+                rationale: "La libération de neutrons supplémentaires engendre une réaction en chaîne."
+            },
+            {
+                lesson: "4. Principe de la fusion",
+                difficulty: "Facile",
+                question: "Qu'est-ce que la fusion nucléaire ?",
+                options: ["Deux noyaux légers qui s'unissent pour former un noyau plus lourd", "L'éclatement d'un noyau d'uranium", "La combustion d'hydrogène avec de l'oxygène", "Le ralentissement des neutrons"],
+                correct: 0,
+                hint: "C'est le mécanisme qui alimente notre Soleil.",
+                rationale: "La fusion associe des noyaux légers pour donner un noyau plus lourd et plus stable."
+            },
+            {
+                lesson: "4. Principe de la fusion",
+                difficulty: "Intermédiaire",
+                question: "Quels isotopes de l'hydrogène fusionnent pour former de l'hélium dans les recherches actuelles ?",
+                options: ["Le deutérium et le tritium", "L'uranium et le strontium", "Le fer et le nickel", "Le carbone et l'azote"],
+                correct: 0,
+                hint: "Ils ont pour symboles respectifs 2_1 H et 3_1 H.",
+                rationale: "La réaction s'effectue entre le deutérium et le tritium."
+            },
+            {
+                lesson: "4. Principe de la fusion",
+                difficulty: "Analyse",
+                question: "Quelle arme historique, testée en 1952, utilise le principe de la fusion non contrôlée ?",
+                options: ["La bombe H", "La bombe A", "Le réacteur ITER", "Le missile Cadarache"],
+                correct: 0,
+                hint: "Elle s'avère mille fois plus puissante que la bombe à fission initiale.",
+                rationale: "La bombe H (bombe à hydrogène) libère l'énergie de fusion de manière explosive non contrôlée."
+            }
+        ];
+
+        // --- ÉTAT DU JEU ---
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let isAudioContextInitialized = false;
+        let audioCtx = null;
+        let musicInterval = null;
+        let playMusic = false;
+        let playEffects = true;
+
+        // Compte à rebours : 20 minutes = 1200 secondes
+        let timeLeft = 1200; 
+        let countdownTimer = null;
+
+        // --- GESTION DU TEMPS ---
+        function startTimer() {
+            if (countdownTimer) clearInterval(countdownTimer);
+            countdownTimer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(countdownTimer);
+                    timeOver();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            let minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            document.getElementById('timerBadge').innerText = `⏱️ ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function timeOver() {
+            // Désactiver le jeu pour cause de temps écoulé
+            document.getElementById('endTitle').innerText = "⏱️ Temps écoulé ! ⏱️";
+            document.getElementById('endSubtitle').innerText = "Les 20 minutes sont terminées. Voyons votre résultat final :";
+            showScoreScreen();
+        }
+
+        // --- INITIALISATION DU SYSTÈME AUDIO ---
+        function initAudio() {
+            if (isAudioContextInitialized) return;
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                isAudioContextInitialized = true;
+            } catch(e) {
+                console.error("L'API Web Audio n'est pas supportée.");
+            }
+        }
+
+        function playTone(freq, type, duration) {
+            if (!playEffects || !isAudioContextInitialized) return;
+            try {
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        function startMusicLoop() {
+            if (musicInterval) clearInterval(musicInterval);
+            let notes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00];
+            let i = 0;
+            musicInterval = setInterval(() => {
+                if (playMusic && isAudioContextInitialized) {
+                    playTone(notes[i % notes.length], 'sine', 0.6);
+                    i++;
+                }
+            }, 800);
+        }
+
+        function toggleMusic() {
+            initAudio();
+            playMusic = !playMusic;
+            document.getElementById('bgMusicBtn').innerText = playMusic ? "🎵 Musique : ON" : "🎵 Musique : OFF";
+            if (playMusic && isAudioContextInitialized) {
+                if(audioCtx.state === 'suspended') audioCtx.resume();
+                startMusicLoop();
+            }
+        }
+
+        function toggleSounds() {
+            initAudio();
+            playEffects = !playEffects;
+            document.getElementById('soundEffectsBtn').innerText = playEffects ? "🔊 Sons : ON" : "🔊 Sons : OFF";
+        }
+
+        // --- LOGIQUE D'AFFICHAGE ---
+        function loadQuestion() {
+            initAudio();
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+
+            document.getElementById('hintBox').style.display = "none";
+            document.getElementById('feedbackMessage').style.display = "none";
+
+            if (currentQuestionIndex >= questionsDatabase.length) {
+                clearInterval(countdownTimer);
+                showScoreScreen();
+                return;
+            }
+
+            document.getElementById('questionNumDisplay').innerText = `Question ${currentQuestionIndex + 1} sur ${questionsDatabase.length}`;
+            document.getElementById('scoreDisplay').innerText = `Score : ${score.toString().padStart(2, '0')}/${questionsDatabase.length}`;
+            let progressPercent = ((currentQuestionIndex) / questionsDatabase.length) * 100;
+            document.getElementById('progressBarFill').style.width = `${progressPercent}%`;
+
+            let q = questionsDatabase[currentQuestionIndex];
+            document.getElementById('lessonTag').innerText = q.lesson;
+            document.getElementById('questionText').innerText = q.question;
+            
+            let diff = document.getElementById('diffTag');
+            diff.innerText = q.difficulty;
+            diff.className = "difficulty-tag";
+            if (q.difficulty === "Facile") diff.classList.add('diff-easy');
+            else if (q.difficulty === "Intermédiaire") diff.classList.add('diff-medium');
+            else diff.classList.add('diff-hard');
+
+            let grid = document.getElementById('optionsGrid');
+            grid.innerHTML = "";
+            q.options.forEach((opt, idx) => {
+                let btn = document.createElement('button');
+                btn.className = "option-btn";
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(idx, btn);
+                grid.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, clickedBtn) {
+            let q = questionsDatabase[currentQuestionIndex];
+            let msg = document.getElementById('feedbackMessage');
+            let buttons = document.querySelectorAll('.option-btn');
+
+            if (selectedIndex === q.correct) {
+                clickedBtn.classList.add('correct');
+                score++;
+                document.getElementById('scoreDisplay').innerText = `Score : ${score.toString().padStart(2, '0')}/${questionsDatabase.length}`;
+                
+                playTone(523.25, 'triangle', 0.15);
+                setTimeout(() => playTone(659.25, 'triangle', 0.15), 100);
+                setTimeout(() => playTone(783.99, 'triangle', 0.3), 200);
+
+                createParticles(clickedBtn);
+
+                msg.className = "feedback-message feedback-success";
+                msg.innerText = `🌟 Excellent ! ${q.rationale}`;
+                msg.style.display = "block";
+
+                buttons.forEach(b => b.disabled = true);
+
+                setTimeout(() => {
+                    currentQuestionIndex++;
+                    loadQuestion();
+                }, 3500);
+
+            } else {
+                clickedBtn.classList.add('incorrect');
+                clickedBtn.disabled = true;
+                playTone(180, 'sawtooth', 0.4);
+
+                msg.className = "feedback-message feedback-error";
+                msg.innerText = "❌ Ce n'est pas tout à fait ça, essaie encore ! Relis bien la question.";
+                msg.style.display = "block";
+            }
+        }
+
+        function showHint() {
+            let q = questionsDatabase[currentQuestionIndex];
+            let box = document.getElementById('hintBox');
+            box.innerText = q.hint;
+            box.style.display = "block";
+            playTone(440, 'sine', 0.1);
+        }
+
+        function createParticles(element) {
+            const rect = element.getBoundingClientRect();
+            const container = document.getElementById('quizContainer');
+            
+            for (let i = 0; i < 20; i++) {
+                let p = document.createElement('div');
+                p.className = 'particle';
+                const colors = ['#38bdf8', '#34d399', '#fbbf24', '#f472b6', '#60a5fa'];
+                p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                p.style.left = (rect.left + rect.width / 2 - window.scrollX) + 'px';
+                p.style.top = (rect.top + rect.height / 2 - window.scrollY) + 'px';
+                
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 50 + Math.random() * 100;
+                p.style.setProperty('--x', `${Math.cos(angle) * distance}px`);
+                p.style.setProperty('--y', `${Math.sin(angle) * distance}px`);
+                
+                container.appendChild(p);
+                setTimeout(() => p.remove(), 1000);
+            }
+        }
+
+        function showScoreScreen() {
+            document.getElementById('quizCard').style.display = "none";
+            document.getElementById('progressSection').style.display = "none";
+            
+            let screen = document.getElementById('scoreScreen');
+            screen.style.display = "block";
+            
+            document.getElementById('finalScoreBadge').innerText = `${score} / ${questionsDatabase.length}`;
+            
+            let evaluation = "";
+            if (score === questionsDatabase.length) evaluation = "🏆 Parfait ! Vous maîtrisez parfaitement l'équivalence masse-énergie et les processus nucléaires !";
+            else if (score >= 20) evaluation = "🥈 Très bien ! Les notions fondamentales du cours sont bien acquises !";
+            else if (score >= 15) evaluation = "👍 Score correct. Une relecture attentive du document d'Einstein et d'Aston vous permettra de vous perfectionner.";
+            else evaluation = "📚 Courage ! Repassez le test et étudiez attentivement les définitions du défaut de masse et des liaisons.";
+            
+            document.getElementById('finalEvaluationText').innerText = evaluation;
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            timeLeft = 1200; // Reset des 20 minutes
+            document.getElementById('endTitle').innerText = "🎉 Travail terminé ! 🎉";
+            document.getElementById('endSubtitle').innerText = "Félicitations pour avoir parcouru l'ensemble des notions clés du manuel.";
+            document.getElementById('quizCard').style.display = "block";
+            document.getElementById('progressSection').style.display = "block";
+            document.getElementById('scoreScreen').style.display = "none";
+            updateTimerDisplay();
+            startTimer();
+            loadQuestion();
+        }
+
+        window.onload = () => {
+            startTimer();
+            loadQuestion();
+        };
+    </script>
+</body>
+</html>
